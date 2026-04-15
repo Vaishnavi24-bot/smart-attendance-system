@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGO_URI)
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
-
+app.use("/api/admin", require("./routes/adminRoutes"));
 // Test route
 app.get("/", (req, res) => {
     res.send("Smart Attendance API Running");

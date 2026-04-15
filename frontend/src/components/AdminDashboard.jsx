@@ -6,57 +6,39 @@ const AdminDashboard = ({ token }) => {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
 
-  // ✅ FETCH USERS
   const fetchUsers = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/admin/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-      setUsers(data);
-    } catch (err) {
-      console.error("Error fetching users:", err);
-    }
+    const res = await fetch(`${API_URL}/api/admin/users`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    setUsers(data);
   };
 
-  // ✅ FETCH STATS
   const fetchStats = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/admin/stats`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-      setStats(data);
-    } catch (err) {
-      console.error("Error fetching stats:", err);
-    }
+    const res = await fetch(`${API_URL}/api/admin/stats`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    setStats(data);
   };
 
-  // ✅ MARK ATTENDANCE (NEW)
   const markAttendance = async (userId, status) => {
     try {
       await fetch(`${API_URL}/api/admin/mark`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ userId, status }),
+        body: JSON.stringify({ userId, status })
       });
 
-      fetchUsers(); // refresh after update
+      fetchUsers(); // refresh
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ✅ RUN ON LOAD
   useEffect(() => {
     if (token) {
       fetchUsers();
@@ -80,48 +62,51 @@ const AdminDashboard = ({ token }) => {
         </div>
       </div>
 
-      {/* Users Table */}
+      {/* Table */}
       <div className="bg-zinc-900 p-6 rounded-2xl">
         <h2 className="text-xl mb-4">Students</h2>
 
         {users.length === 0 ? (
-          <p>No student data found</p>
+          <p>No data</p>
         ) : (
-          <table className="w-full text-left">
+          <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-700">
                 <th>Name</th>
                 <th>Email</th>
                 <th>Attendance</th>
-                <th>Actions</th>
+                <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
-              {users.map((user) => (
+              {users.map(user => (
                 <tr key={user._id} className="border-b border-zinc-800">
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.totalAttendance}</td>
 
-                  <td className="flex gap-2 py-2">
-                    <button
-                      onClick={() => markAttendance(user._id, "present")}
-                      className="px-3 py-1 bg-emerald-600 rounded-lg"
-                    >
-                      Present
-                    </button>
+                  <td>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => markAttendance(user._id, "present")}
+                        className="bg-emerald-600 px-3 py-1 rounded"
+                      >
+                        Present
+                      </button>
 
-                    <button
-                      onClick={() => markAttendance(user._id, "absent")}
-                      className="px-3 py-1 bg-red-600 rounded-lg"
-                    >
-                      Absent
-                    </button>
+                      <button
+                        onClick={() => markAttendance(user._id, "absent")}
+                        className="bg-red-600 px-3 py-1 rounded"
+                      >
+                        Absent
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
+
           </table>
         )}
       </div>

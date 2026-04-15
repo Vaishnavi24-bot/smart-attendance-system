@@ -38,6 +38,24 @@ const AdminDashboard = ({ token }) => {
     }
   };
 
+  // ✅ MARK ATTENDANCE (NEW)
+  const markAttendance = async (userId, status) => {
+    try {
+      await fetch(`${API_URL}/api/admin/mark`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId, status }),
+      });
+
+      fetchUsers(); // refresh after update
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // ✅ RUN ON LOAD
   useEffect(() => {
     if (token) {
@@ -75,14 +93,32 @@ const AdminDashboard = ({ token }) => {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Attendance</th>
+                <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {users.map((user) => (
                 <tr key={user._id} className="border-b border-zinc-800">
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.totalAttendance}</td>
+
+                  <td className="flex gap-2 py-2">
+                    <button
+                      onClick={() => markAttendance(user._id, "present")}
+                      className="px-3 py-1 bg-emerald-600 rounded-lg"
+                    >
+                      Present
+                    </button>
+
+                    <button
+                      onClick={() => markAttendance(user._id, "absent")}
+                      className="px-3 py-1 bg-red-600 rounded-lg"
+                    >
+                      Absent
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

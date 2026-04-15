@@ -24,10 +24,12 @@ router.get('/users', protect, adminOnly, async (req, res) => {
             users.map(async (user) => {
                 const attendance = await Attendance.find({ userId: user._id });
 
-                return {
-                    ...user._doc,
-                    totalAttendance: attendance.length
-                };
+const presentCount = attendance.filter(a => a.status === 'present').length;
+
+return {
+    ...user._doc,
+    totalAttendance: presentCount
+};
             })
         );
 
@@ -54,6 +56,42 @@ router.get('/stats', protect, adminOnly, async (req, res) => {
         });
 
     } catch (err) {
+        res.status(500).json({ msg: "Server error" });
+    }
+});
+// 🔹 MARK / UPDATE ATTENDANCE BY ADMIN
+router.post('/mark', protect, adminOnly, async (req, res) => {
+    try {
+        const { userId, status } = req.body;
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        // Check if already exists
+        let attendance = await Attendance.findOne({
+            userId,
+            date: { $gte: today, $lt: tomorrow }
+        });
+
+        if (attendance) {
+            // 🔁 UPDATE
+            attendance.status = status;
+            await attendance.save();
+        } else {
+            // ➕ CREATE
+            attendance = await Attendance.create({
+                userId,
+                status
+            });
+        }
+
+        res.json({ success: true, message: "Attendance updated" });
+
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ msg: "Server error" });
     }
 });

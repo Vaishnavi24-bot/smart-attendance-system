@@ -1,49 +1,47 @@
 const Attendance = require('../models/Attendance');
 
 const markAttendance = async (req, res) => {
-    console.log("📍 Mark Attendance called by user ID:", req.user?.id);
+  try {
+    const userId = req.user.id;
 
-    try {
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ success: false, message: "Please login first" });
-        }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-        // Check if already marked today
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+    const existing = await Attendance.findOne({
+      userId: userId,
+      date: { $gte: today, $lt: tomorrow },
+    });
 
-        const existing = await Attendance.findOne({
-            userId: req.user.id,
-            date: { $gte: today, $lt: tomorrow }
-        });
-
-        if (existing) {
-            return res.status(400).json({ success: false, message: "Attendance already marked for today" });
-        }
-
-        const attendance = await Attendance.create({
-            userId: req.user.id,
-            date: new Date()
-        });
-
-        console.log("✅ Attendance marked successfully!");
-        res.status(201).json({ 
-            success: true, 
-            message: "Attendance marked successfully" 
-        });
-
-    } catch (error) {
-        console.error("❌ Mark Attendance Error:", error.message);
-        res.status(500).json({ success: false, message: "Server error. Please try again." });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: "Already marked today",
+      });
     }
+
+    await Attendance.create({
+      userId: userId,
+      date: new Date(),
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Attendance marked",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 const getMyAttendance = async (req, res) => {
     try {
-        const attendances = await Attendance.find({ userId: req.user.id }).sort({ date: -1 });
+       const attendanceCount = await Attendance.find({
+  userId: student._id,
+}).countDocuments();
 
         res.json({
             success: true,

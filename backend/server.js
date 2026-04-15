@@ -5,36 +5,48 @@ const mongoose = require('mongoose');
 
 dotenv.config();
 
-// ✅ CREATE APP FIRST
-const app = express();
+const app = express(); // ✅ MUST be before using app
 
-// ✅ MIDDLEWARE
-app.use(express.json());
-
+// =====================
+// ✅ CORS FIX (IMPORTANT)
+// =====================
 app.use(cors({
-  origin: ["http://localhost:5173"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: [
+    "http://localhost:5173",
+    "https://smart-attendance-system-f28cxoyf6-vaishnavi24-bots-projects.vercel.app"
+  ],
   credentials: true
 }));
 
-// ✅ DB CONNECTION
+// =====================
+// Middleware
+// =====================
+app.use(express.json());
+
+// =====================
+// MongoDB Connection
+// =====================
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected Successfully'))
-  .catch(err => {
-    console.error('❌ MongoDB Error:', err);
-    process.exit(1);
-  });
+  .catch(err => console.error('❌ MongoDB Error:', err));
 
-// ✅ ROUTES
+// =====================
+// Routes
+// =====================
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
-// ✅ TEST ROUTE
+app.use('/api/admin', require('./routes/adminRoutes')); // ✅ admin route
+
+// =====================
+// Test Route
+// =====================
 app.get('/', (req, res) => {
-  res.send('🚀 Smart Attendance API is Running...');
+  res.send('API Running 🚀');
 });
 
-// ✅ START SERVER
+// =====================
+// Start Server
+// =====================
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {

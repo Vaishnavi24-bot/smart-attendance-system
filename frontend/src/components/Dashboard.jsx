@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AttendanceTable from './AttendanceTable';
 import AttendanceChart from './AttendanceChart';
 
-const API_URL = 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Dashboard = ({ token, user }) => {
   const [attendances, setAttendances] = useState([]);

@@ -38,24 +38,35 @@ const markAttendance = async (req, res) => {
 };
 
 const getMyAttendance = async (req, res) => {
-    try {
-       const attendanceCount = await Attendance.find({
-  userId: student._id,
-}).countDocuments();
+  try {
+    const userId = req.user.id;
 
-        res.json({
-            success: true,
-            attendances,
-            stats: {
-                totalMarked: attendances.length,
-                totalExpected: 60,
-                percentage: Math.round((attendances.length / 60) * 100)
-            }
-        });
-    } catch (error) {
-        console.error("Get Attendance Error:", error);
-        res.status(500).json({ success: false, message: "Server error" });
-    }
+    const attendances = await Attendance.find({ userId }).sort({
+      date: -1,
+    });
+
+    const totalMarked = attendances.length;
+    const totalExpected = 60;
+
+    res.json({
+      success: true,
+      attendances,
+      stats: {
+        totalMarked,
+        totalExpected,
+        percentage:
+          totalExpected === 0
+            ? 0
+            : Math.round((totalMarked / totalExpected) * 100),
+      },
+    });
+  } catch (error) {
+    console.error("Get Attendance Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
 };
 
 module.exports = { markAttendance, getMyAttendance };

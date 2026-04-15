@@ -1,32 +1,35 @@
 const express = require("express");
+const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 
 dotenv.config();
 
-const app = express(); // 👈 MUST BE FIRST
+const app = express();
 
-app.use(cors());
+// Middleware
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+}));
 app.use(express.json());
 
-// DB
+// MongoDB
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+    .then(() => console.log("✅ MongoDB Connected"))
+    .catch(err => console.log("❌ Mongo Error:", err));
 
-// ROUTES
+// Routes
 app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/admin", require("./routes/adminAuthRoutes"));
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
 
-// HOME
+// Test route
 app.get("/", (req, res) => {
-  res.send("Smart Attendance API Running");
+    res.send("Smart Attendance API Running");
 });
 
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });

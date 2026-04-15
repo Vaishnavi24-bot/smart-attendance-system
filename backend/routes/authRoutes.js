@@ -1,12 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { 
-  signup, 
-  login 
-} = require("../controllers/authController");
+const { signup, login } = require("../controllers/authController");
 
-// Routes
+// Student routes only
 router.post("/register", signup);
 router.post("/login", login);
 

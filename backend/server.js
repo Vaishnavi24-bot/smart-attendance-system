@@ -7,30 +7,43 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+
+// ✅ MIDDLEWARE
+app.use(express.json());
+
+// 🔥 CORS FIX (IMPORTANT)
 app.use(cors({
-  origin: "*",
+  origin: ["http://localhost:5173"], // frontend (local)
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
-app.use(express.json());
 
-// MongoDB Connection
+app.options('*', cors()); // handle preflight
+
+
+// ✅ MONGODB CONNECTION
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected Successfully'))
-  .catch(err => console.error('❌ MongoDB Error:', err));
+  .catch(err => {
+    console.error('❌ MongoDB Error:', err);
+    process.exit(1);
+  });
 
-// Routes
+
+// ✅ ROUTES
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/attendance', require('./routes/attendanceRoutes'));   // ← This was missing
-app.use('/api/admin', require('./routes/adminRoutes'));
-app.use('/api/admin-auth', require('./routes/adminAuthRoutes'));
-// Test Route
+app.use('/api/attendance', require('./routes/attendanceRoutes'));
+
+
+// ✅ TEST ROUTE
 app.get('/', (req, res) => {
-  res.send('Smart Attendance API is Running...');
+  res.send('🚀 Smart Attendance API is Running...');
 });
 
+
+// ✅ SERVER START
 const PORT = process.env.PORT || 4000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
